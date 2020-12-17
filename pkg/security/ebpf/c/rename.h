@@ -85,7 +85,7 @@ int __attribute__((always_inline)) trace__sys_rename_ret(struct pt_regs *ctx) {
         invalidate_inode(ctx, syscall->rename.target_key.mount_id, inode, 1);
     }
 
-    // invalidate user face inode
+    // invalidate user face inode, so no need to bump the discarder revision in the event
     invalidate_inode(ctx, syscall->rename.target_key.mount_id, syscall->rename.target_key.ino, 1);
 
     // If we are discarded, we still want to invalidate the inode

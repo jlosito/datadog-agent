@@ -148,6 +148,19 @@ func (mr *MountResolver) Delete(mountID uint32) error {
 	return nil
 }
 
+// IsOverlayFS returns the type of a mountID
+func (mr *MountResolver) IsOverlayFS(mountID uint32) bool {
+	mr.lock.RLock()
+	defer mr.lock.RUnlock()
+
+	mount, exists := mr.mounts[mountID]
+	if !exists {
+		return false
+	}
+
+	return mount.IsOverlayFS()
+}
+
 // Insert a new mount point in the cache
 func (mr *MountResolver) Insert(e MountEvent) {
 	mr.lock.Lock()
@@ -173,6 +186,9 @@ func (mr *MountResolver) insert(e MountEvent) {
 	mounts[e.MountID] = &e
 
 	mr.mounts[e.MountID] = &e
+
+	// init discarder revisions
+	mr.probe.initDiscarderRevision(&e)
 }
 
 func (mr *MountResolver) getParentPath(mountID uint32) string {
